@@ -1,0 +1,150 @@
+<?php
+/**
+ * @author Erlend Strømsvik - Ny Media AS
+ * @author Piers Harding - made quite a number of changes
+ * @author Tsukasa Hamano - coursecreator and group attribute mapping
+ * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
+ * @package auth/saml
+ *
+ * Authentication Plugin: SAML based SSO Authentication
+ *
+ * Authentication using SAML2 with SimpleSAMLphp. 
+ *
+ * Based on plugins made by Sergio Gómez (moodle_ssp) and Martin Dougiamas (Shibboleth).
+ *
+ * 2008-10  Created
+ * 2009-07  Added new configuration options
+ * 2010-01  Added coursecreator mapping options
+**/
+
+    global $CFG;
+
+    // Set to defaults if undefined
+    if (!isset ($config->username)) {
+        $config->username = 'mail';
+    }
+    if (!isset ($config->userfield)) {
+        $config->userfield = 'idnumber';
+    }
+    if (!isset ($config->dologout)) {
+        $config->dologout = '';
+    }
+    if (!isset ($config->createusers)) {
+        $config->createusers = '';
+    }
+    if (!isset ($config->duallogin)) {
+        $config->duallogin = '';
+    }
+    if (!isset ($config->notshowusername)) {
+        $config->notshowusername = '';
+    }
+    if (!isset ($config->memberattribute)) {
+        $config->memberattribute = 'memberOf';
+    }
+    if (!isset ($config->attrcreators)) {
+        $config->attrcreators = '';
+    }
+    if (!isset ($config->unassigncreators)) {
+        $config->unassigncreators = '';
+    }
+?>
+<table cellspacing="0" cellpadding="5" border="0">
+<tr valign="top" class="required">
+<td colspan="3">
+   <?php
+   if (isset($err['samllib'])) {
+      formerr($err['samllib']);
+      echo '<br/>';
+   }
+   if (isset($err['samlconfig'])) {
+      formerr($err['samlconfig']);
+      echo '<br/>';
+   }
+   ?>
+</td>
+</tr>
+<tr valign="top" class="required">
+    <td align="right"><?php print_string("auth_saml_username", "auth_saml"); ?>:</td>
+    <td>
+        <input name="username" type="text" size="30" value="<?php echo $config->username; ?>" />
+    </td>
+    <td><?php print_string("auth_saml_username_description", "auth_saml"); ?></td>
+</tr>
+<tr valign="top" class="required">
+    <td align="right"><?php print_string("auth_saml_userfield", "auth_saml"); ?>:</td>
+    <td>
+        <input name="userfield" type="text" size="30" value="<?php echo $config->userfield; ?>" />
+    </td>
+    <td><?php print_string("auth_saml_userfield_description", "auth_saml"); ?></td>
+</tr>
+
+<tr valign="top">
+    <td align="right"><?php print_string("auth_saml_dologout", "auth_saml"); ?>:</td>
+    <td>
+        <input name="dologout" type="checkbox" <?php if($config->dologout) echo "CHECKED"; ?> />
+    </td>
+    <td><?php print_string("auth_saml_dologout_description", "auth_saml"); ?></td>
+</tr>
+
+<tr valign="top">
+    <td align="right"><?php print_string("auth_saml_createusers", "auth_saml"); ?>:</td>
+    <td>
+        <input name="createusers" type="checkbox" <?php if($config->createusers) echo "CHECKED"; ?> />
+    </td>
+    <td><?php print_string("auth_saml_createusers_description", "auth_saml"); ?></td>
+</tr>
+
+<tr valign="top">
+    <td align="right"><?php print_string("auth_saml_duallogin", "auth_saml"); ?>:</td>
+    <td>
+        <input name="duallogin" type="checkbox" <?php if($config->duallogin) echo "CHECKED"; ?> />
+    </td>
+    <td><?php print_string("auth_saml_duallogin_description", "auth_saml"); ?></td>
+</tr>
+
+<tr valign="top">
+    <td align="right"><?php print_string("auth_saml_notshowusername", "auth_saml"); ?>:</td>
+    <td>
+        <input name="notshowusername" type="checkbox" <?php if($config->notshowusername) echo "CHECKED"; ?> />
+    </td>
+    <td><?php print_string("auth_saml_notshowusername_description", "auth_saml"); ?></td>
+</tr>
+
+<tr>
+   <td colspan="2">
+        <h4><?php print_string('coursecreators') ?> </h4>
+   </td>
+</tr>
+<tr valign="top" class="required">
+        <td align="right"><label for="memberattribute"><?php print_string('auth_saml_memberattribute','auth_saml') ?></label></td>
+        <td>
+    <input name="memberattribute" id="memberattribute" type="text" size="30" value="<?php echo $config->memberattribute?>" />
+    <?php  if (isset($err['memberattribute'])) formerr($err['memberattribute']); ?>
+    </td><td>
+    <?php print_string('auth_saml_memberattribute_description','auth_saml') ?>
+    </td>
+</tr>
+<tr valign="top" class="required">
+        <td align="right"><label for="attrcreators"><?php print_string('auth_saml_attrcreators','auth_saml') ?></label></td>
+        <td>
+    <input name="attrcreators" id="attrcreators" type="text" size="30" value="<?php echo $config->attrcreators?>" />
+    <?php  if (isset($err['attrcreators'])) formerr($err['attrcreators']); ?>
+    </td><td>
+    <?php print_string('auth_saml_attrcreators_description','auth_saml') ?>
+    </td>
+</tr>
+
+<tr valign="top">
+    <td align="right"><?php print_string("auth_saml_unassigncreators", "auth_saml"); ?>:</td>
+    <td>
+        <input name="unassigncreators" type="checkbox" <?php if($config->unassigncreators) echo "CHECKED"; ?> />
+    </td>
+    <td><?php print_string("auth_saml_unassigncreators_description", "auth_saml"); ?></td>
+</tr>
+
+<?php
+
+print_auth_lock_options('saml', $user_fields, '<!-- empty help -->', true, false);
+
+?>
+</table>
