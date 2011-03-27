@@ -132,7 +132,7 @@ if(!isset($saml_attributes[$pluginconfig->username])) {
 }
 
 // check that there isn't anything nasty in the username
-$username = $saml_attributes[$pluginconfig->username][0];
+$username = strtolower($saml_attributes[$pluginconfig->username][0]);
 if ($username != clean_param($username, PARAM_TEXT)) {
     error_log('auth_saml: auth failed due to illegal characters in username: '.$username);
     session_write_close();
@@ -143,7 +143,7 @@ if ($username != clean_param($username, PARAM_TEXT)) {
 }
 
 // just passes time as a password. User will never log in directly to moodle with this password anyway or so we hope?
-$username = auth_saml_addsingleslashes($saml_attributes[$pluginconfig->username][0]);
+$username = auth_saml_addsingleslashes($username);
 
 // check if users are allowed to be created and if the user exists
 $user_data =  get_complete_user_data($pluginconfig->userfield, $username);
@@ -156,8 +156,10 @@ if (isset($pluginconfig->createusers)) {
         print_error('pluginauthfailed', 'auth_saml', '', $pluginconfig->userfield.'/'.$saml_attributes[$pluginconfig->username][0]);
     }
 }
-// swap username for Moodle one
-$username = $user_data->username;
+// swap username for Moodle one - if exists
+if ($user_data) {
+    $username = $user_data->username;
+}
 
 //error_log('auth_saml: authenticating username: '.$username);
 //error_log('auth_saml: saml attrs: '.var_export($saml_attributes, true));
