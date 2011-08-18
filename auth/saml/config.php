@@ -19,6 +19,8 @@
 $SIMPLESAMLPHP_LIB = '/var/simplesamlphp';
 $SIMPLESAMLPHP_CONFIG = '/var/simplesamlphp/config';
 $SIMPLESAMLPHP_SP = 'default-sp';
+//$SIMPLESAMLPHP_RETURN_TO = 'http://some.other.target'; // for when you need to override RelayState
+$SIMPLESAMLPHP_RETURN_TO = null;
 
 // change this to something specific if you don't want users to be sent to
 // Moodle $CFG->wwwroot when logout is completed

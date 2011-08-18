@@ -87,7 +87,9 @@ if (isset($_GET['wantsurl'])) {
 }
 
 // now - are we logged in?
-$as->requireAuth();
+$return_to = $SIMPLESAMLPHP_RETURN_TO ? $SIMPLESAMLPHP_RETURN_TO : auth_saml_qualified_me().'/auth/saml/';
+$as->requireAuth(array('ReturnTo' => $return_to));
+
 
 // get the SAML user attributes
 $saml_attributes = $as->getAttributes();
