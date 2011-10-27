@@ -101,7 +101,6 @@ $return_to = $SIMPLESAMLPHP_RETURN_TO ? $SIMPLESAMLPHP_RETURN_TO : auth_saml_qua
 $error_url = $SIMPLESAMLPHP_ERROR_URL ? $SIMPLESAMLPHP_ERROR_URL : auth_saml_qualified_me().$_SERVER['REQUEST_URI'].'/error.php';
 $as->requireAuth(array('ReturnTo' => $return_to, 'ErrorURL' => $error_url));
 
-
 // get the SAML user attributes
 $saml_attributes = $as->getAttributes();
 
