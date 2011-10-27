@@ -19,7 +19,8 @@
 global $CFG, $USER, $SESSION;
 
 define('SAML_INTERNAL', 1);
-define('SAML_RETRIES', 5);
+define('SAML_RETRIES', 3);
+define('SAML_DEBUG', 0);
 
 // Pull in the SimpleSAMLphp Config - you must configure this to point to your
 // SimpleSAMLphp install for SP
@@ -49,11 +50,11 @@ $valid_saml_session = $saml_session->isValid($SIMPLESAMLPHP_SP);
 // either way we don't want to be SAML controlled at this stage
 unset($SESSION->SAMLSessionControlled);
 
+session_start();
 // check what kind of request this is
 if(isset($_GET["logout"])) { // only existence check this param
-    if (isset($SESSION->retry)) {
-        $SESSION->retry = 0;
-    }
+    unset($_SESSION['retries']);
+    unset($SESSION->wantsurl);
     if($valid_saml_session) {
         $as->logout($SIMPLESAMLPHP_LOGOUT_LINK);
     } else {
@@ -71,14 +72,23 @@ if(isset($_GET["logout"])) { // only existence check this param
  * if good, then do the Moodle login, and send to the home page, or landing page
  * if otherwise specified
  */
-$retry = isset($SESSION->retry) ? $SESSION->retry : 0;
-if ($retry == SAML_RETRIES) {
+if (isset($_SESSION['retries'])) {
+    $_SESSION['retries'] = $_SESSION['retries'] + 1;
+}
+else {
+    $_SESSION['retries'] = 1;
+}
+auth_saml_err('session : '.var_export($_SESSION, true));
+auth_saml_err('checked retries NOW : '.$_SESSION['retries']);
+
+if ($_SESSION['retries'] > SAML_RETRIES) {
     // too many tries at logging in
+    unset($_SESSION['retries']);
     session_write_close();
     require_once('../../config.php');
     print_error('retriesexceeded', 'auth_saml', '', $retry);
+    die();
 }
-$SESSION->retry = $retry + 1;
 
 // save the jump target - this is checked later that it 
 // starts with $CFG->wwwroot, and cleaned
@@ -87,8 +97,9 @@ if (isset($_GET['wantsurl'])) {
 }
 
 // now - are we logged in?
-$return_to = $SIMPLESAMLPHP_RETURN_TO ? $SIMPLESAMLPHP_RETURN_TO : auth_saml_qualified_me().'/auth/saml/';
-$as->requireAuth(array('ReturnTo' => $return_to));
+$return_to = $SIMPLESAMLPHP_RETURN_TO ? $SIMPLESAMLPHP_RETURN_TO : auth_saml_qualified_me().$_SERVER['REQUEST_URI'];
+$error_url = $SIMPLESAMLPHP_ERROR_URL ? $SIMPLESAMLPHP_ERROR_URL : auth_saml_qualified_me().$_SERVER['REQUEST_URI'].'/error.php';
+$as->requireAuth(array('ReturnTo' => $return_to, 'ErrorURL' => $error_url));
 
 
 // get the SAML user attributes
@@ -97,7 +108,7 @@ $saml_attributes = $as->getAttributes();
 // if we get here, then everything is OK - shutdown the ssphp
 // side of things, and continue with Moodle
 $wantsurl = isset($SESSION->wantsurl) ? $SESSION->wantsurl : FALSE;
-unset($SESSION->retry);
+unset($_SESSION['retries']);
 unset($SESSION->wantsurl);
 session_write_close();
 
@@ -428,11 +439,20 @@ function auth_saml_qualified_me() {
     }
 }
 
-
+/**
+ *  error log wrapper
+ * @param string $msg
+ */
 function auth_saml_err($msg) {
-    $stderr = fopen('php://stderr', 'w');
-    fwrite($stderr,"auth_plugin_saml: ". $msg . "\n");
-    fclose($stderr);
-}
+    // check if we are debugging
+    if (! constant('SAML_DEBUG')) {
+        return;
+    }
+    $logid = '';
 
-?>
+    // check if this method is executable
+    if (class_exists('SimpleSAML_Logger') && in_array('getTrackId', get_class_methods('SimpleSAML_Logger'))) {
+        $logid = '['.SimpleSAML_Logger::getTrackId().']';
+    }
+    error_log('auth/saml: '.$logid.' '.$msg);
+}
