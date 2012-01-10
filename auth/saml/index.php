@@ -26,6 +26,13 @@ define('SAML_DEBUG', 0);
 // SimpleSAMLphp install for SP
 require_once('config.php');
 
+if (!file_exists($SIMPLESAMLPHP_LIB . '/lib/_autoload.php')) {
+    // invalid config and lib directory
+    session_write_close();
+    require_once('../../config.php');
+    print_error('invalidconfig', 'auth_saml');
+    die();
+}
 // now boot strap SimpleSAMLPHP and get everything that we could
 // possibly need data wise
 require_once($SIMPLESAMLPHP_LIB . '/lib/_autoload.php');

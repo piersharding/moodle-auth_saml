@@ -17,7 +17,7 @@
  * 2010-01  Added coursecreator mapping options
 **/
 
-    global $CFG;
+    global $CFG, $OUTPUT;
 
     // Set to defaults if undefined
     if (!isset ($config->username)) {
@@ -53,11 +53,11 @@
 <td colspan="3">
    <?php
    if (isset($err['samllib'])) {
-      formerr($err['samllib']);
+      echo $OUTPUT->error_text($err['samllib']);
       echo '<br/>';
    }
    if (isset($err['samlconfig'])) {
-      formerr($err['samlconfig']);
+      echo $OUTPUT->error_text($err['samlconfig']);
       echo '<br/>';
    }
    ?>

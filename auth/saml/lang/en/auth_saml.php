@@ -33,6 +33,7 @@ $string['auth_saml_unassigncreators'] = 'Unassign creators';
 $string['auth_saml_unassigncreators_description'] = 'Unassign creators role if unmatch specified condition.';
 
 $string['retriesexceeded'] = 'Maximum number of retries exceeded ({$a}) - there must be a problem with the Identity Service';
+$string['invalidconfig'] = 'Invalid configuration config.php for auth/saml';
 $string['pluginauthfailed'] = 'The SAML authentication plugin failed - user {$a} disallowed (no user auto creation?) or dual login disabled';
 $string['pluginauthfailedusername'] = 'The SAML authentication plugin failed - user {$a} disallowed due to invalid username format';
 $string['auth_saml_username_error'] = 'IdP returned a set of data that does not contain the SAML username mapping field. This field is required to login';
