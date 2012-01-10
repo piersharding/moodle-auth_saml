@@ -155,8 +155,6 @@ if ($username != clean_param($username, PARAM_TEXT)) {
 }
 
 // just passes time as a password. User will never log in directly to moodle with this password anyway or so we hope?
-$username = auth_saml_addsingleslashes($username);
-
 // check if users are allowed to be created and if the user exists
 $user_data =  get_complete_user_data($pluginconfig->userfield, $username);
 if (isset($pluginconfig->createusers)) {
@@ -334,15 +332,6 @@ function auth_saml_authenticate_user_login($username, $password) {
         error_log('[client '.getremoteaddr()."]  $CFG->wwwroot  Failed Login:  $username  ".$_SERVER['HTTP_USER_AGENT']);
     }
     return false;
-}
-
-/**
- * Add slashes for single quotes and backslashes
- * so they can be included in single quoted string
- * (for config.php)
- */
-function auth_saml_addsingleslashes($input){
-    return preg_replace("/(['\\\])/", "\\\\$1", $input);
 }
 
 
