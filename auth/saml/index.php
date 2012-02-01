@@ -121,6 +121,11 @@ session_write_close();
 // do the normal Moodle bootstraping so we have access to all config and the DB
 require_once('../../config.php');
 
+// Check plugin is active
+if (!is_enabled_auth('saml')) {
+    print_error(get_string("notconfigured", "auth_saml"));
+}
+
 // check for a wantsurl in the existing Moodle session 
 if (empty($wantsurl) && isset($SESSION->wantsurl)) {
     $wantsurl = $SESSION->wantsurl;
@@ -217,6 +222,7 @@ if (isset($wantsurl) and (strpos($wantsurl, $CFG->wwwroot) === 0)) {
 
 // flag this as a SAML based login
 $SESSION->SAMLSessionControlled = true;
+add_to_log(SITEID, 'user', 'login', "view.php?id=$USER->id&course=".SITEID, $USER->id, 0, $USER->id);
 redirect($urltogo);
 
 

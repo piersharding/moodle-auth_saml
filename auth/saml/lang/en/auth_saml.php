@@ -17,6 +17,8 @@ $string['auth_saml_duallogin_description'] = 'Enable use of users assigned login
 $string['auth_saml_notshowusername'] = 'Do not show username';
 $string['auth_saml_notshowusername_description'] = 'Check to have Moodle not show the username for users logging in by Identity Provider';
 
+$string['notconfigured'] = 'auth/saml is not configured for use';
+
 $string['errorbadlib'] = 'SimpleSAMLPHP lib directory {$a} is not correct.  Please edit the auth/saml/config.php file correctly.';
 $string['errorbadconfig'] = 'SimpleSAMLPHP config directory {$a} is in correct.  Please edit the auth/saml/config.php file correctly.';
 
