@@ -1,16 +1,16 @@
-<?php 
+<?php
 /**
  * index.php - landing page for auth/saml based SAML 2.0 login
- * 
+ *
  * builds basic CFG and DB connection to Moodle, to then get the saml plugin
  * configuration.
- * 
+ *
  * Does the SimpleSAMLPHP calls to query SAML 2.0 session status,
- * 
+ *
  * Builds the rest of Moodle session, and then logs the user in.
- * 
+ *
  * @originalauthor Martin Dougiamas
- * @author Erlend Strømsvik - Ny Media AS 
+ * @author Erlend Strømsvik - Ny Media AS
  * @author Piers Harding - made quite a number of changes
  * @version 1.0
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
@@ -97,7 +97,7 @@ if ($_SESSION['retries'] > SAML_RETRIES) {
     die();
 }
 
-// save the jump target - this is checked later that it 
+// save the jump target - this is checked later that it
 // starts with $CFG->wwwroot, and cleaned
 if (isset($_GET['wantsurl'])) {
     $SESSION->wantsurl = $_GET['wantsurl'];
@@ -126,7 +126,7 @@ if (!is_enabled_auth('saml')) {
     print_error(get_string("notconfigured", "auth_saml"));
 }
 
-// check for a wantsurl in the existing Moodle session 
+// check for a wantsurl in the existing Moodle session
 if (empty($wantsurl) && isset($SESSION->wantsurl)) {
     $wantsurl = $SESSION->wantsurl;
 }
@@ -187,8 +187,8 @@ if ($user_data) {
 //error_log('auth_saml: saml attrs: '.var_export($saml_attributes, true));
 if (isset($pluginconfig->duallogin) && $pluginconfig->duallogin) {
     $USER = auth_saml_authenticate_user_login($username, time());
-} 
-else {    
+}
+else {
     $USER = authenticate_user_login($username, time());
 }
 
@@ -208,6 +208,12 @@ $USER->site     = $CFG->wwwroot;
 
 // complete the user login sequence
 $USER = get_complete_user_data('id', $USER->id);
+
+// update logins and report the login attempt
+update_login_count();
+add_to_log(SITEID, 'user', 'login', "view.php?id=$USER->id&course=".SITEID, $USER->id, 0, $USER->id);
+
+// complete the setup of the user
 complete_user_login($USER);
 
 // just fast copied this from some other module - might not work...
@@ -222,19 +228,18 @@ if (isset($wantsurl) and (strpos($wantsurl, $CFG->wwwroot) === 0)) {
 
 // flag this as a SAML based login
 $SESSION->SAMLSessionControlled = true;
-add_to_log(SITEID, 'user', 'login', "view.php?id=$USER->id&course=".SITEID, $USER->id, 0, $USER->id);
 redirect($urltogo);
 
 
 /**
  * Copied from moodlelib:authenticate_user_login()
- * 
+ *
  * WHY? because I need to hard code the plugins to auth_saml, and this user
  * may be set to any number of other types of login method
- * 
+ *
  * First of all - make sure that they aren't nologin - we don't mess with that!
- * 
- * 
+ *
+ *
  * Given a username and password, this function looks them
  * up using the currently selected authentication mechanism,
  * and if the authentication is successful, it returns a
@@ -256,7 +261,7 @@ function auth_saml_authenticate_user_login($username, $password) {
     global $CFG, $DB;
 
     // ensure that only saml auth module is chosen
-    $authsenabled = get_enabled_auth_plugins();    
+    $authsenabled = get_enabled_auth_plugins();
 
     if ($user = get_complete_user_data('username', $username, $CFG->mnet_localhost_id)) {
         $auth = empty($user->auth) ? 'manual' : $user->auth;  // use manual if auth not set
@@ -348,7 +353,7 @@ function auth_saml_authenticate_user_login($username, $password) {
 }
 
 
-// useful functions copied from Moodle lib/weblib.php - why? need to be able to 
+// useful functions copied from Moodle lib/weblib.php - why? need to be able to
 // run these without having bootstrapped Moodle
 
 /**
