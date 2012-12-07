@@ -188,7 +188,7 @@ class auth_plugin_saml extends auth_plugin_base {
      * A chance to validate form data, and last chance to
      * do stuff before it is inserted in config_plugin
      */
-     function validate_form(&$form, &$err) {
+     function validate_form($form, &$err) {
         require_once('config.php');
         if (empty($SIMPLESAMLPHP_LIB) || !file_exists($SIMPLESAMLPHP_LIB.'/lib/_autoload.php')) {
             $err['samllib'] = get_string('errorbadlib', 'auth_saml', $SIMPLESAMLPHP_LIB);
