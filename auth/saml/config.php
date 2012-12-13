@@ -27,3 +27,8 @@ $SIMPLESAMLPHP_ERROR_URL = null;
 // change this to something specific if you don't want users to be sent to
 // Moodle $CFG->wwwroot when logout is completed
 $SIMPLESAMLPHP_LOGOUT_LINK = "";  
+
+// the alternative to the normal redirect for logout from the logout hook
+// $SIMPLESAMLPHP_LOGOUT_HOOK = 'https://some.moodle.x/auth/saml/index.php?logout=1';
+$SIMPLESAMLPHP_LOGOUT_HOOK = '';
+

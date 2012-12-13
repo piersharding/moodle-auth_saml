@@ -168,6 +168,12 @@ class auth_plugin_saml extends auth_plugin_base {
             set_moodle_cookie('nobody');
             require_logout();
             redirect($GLOBALS['CFG']->wwwroot.'/auth/saml/index.php?logout=1');
+            if (!empty($SIMPLESAMLPHP_LOGOUT_HOOK)) {
+                redirect($SIMPLESAMLPHP_LOGOUT_HOOK);
+            }
+            else {
+                redirect($GLOBALS['CFG']->wwwroot.'/auth/saml/index.php?logout=1');
+            }
         }
     }
     
