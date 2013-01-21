@@ -124,7 +124,7 @@ class auth_plugin_saml extends auth_plugin_base {
         
         $fields = array("firstname", "lastname", "email", "phone1", "phone2",
             "department", "address", "city", "country", "description",
-            "idnumber", "lang", "guid");
+            "idnumber", "lang", "url", "institution");
         
         $moodleattributes = array();
         foreach ($fields as $field) {
