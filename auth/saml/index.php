@@ -25,6 +25,9 @@ define('SAML_DEBUG', 0);
 // Pull in the SimpleSAMLphp Config - you must configure this to point to your
 // SimpleSAMLphp install for SP
 require_once('config.php');
+require_once('../../config.php');
+$wantsurl = isset($SESSION->wantsurl) ? $SESSION->wantsurl : FALSE;
+session_write_close();
 
 if (!file_exists($SIMPLESAMLPHP_LIB . '/lib/_autoload.php')) {
     // invalid config and lib directory
@@ -56,6 +59,7 @@ $valid_saml_session = $saml_session->isValid($SIMPLESAMLPHP_SP);
 
 // either way we don't want to be SAML controlled at this stage
 unset($SESSION->SAMLSessionControlled);
+
 
 session_start();
 // check what kind of request this is
@@ -113,13 +117,16 @@ $saml_attributes = $as->getAttributes();
 
 // if we get here, then everything is OK - shutdown the ssphp
 // side of things, and continue with Moodle
-$wantsurl = isset($SESSION->wantsurl) ? $SESSION->wantsurl : FALSE;
 unset($_SESSION['retries']);
 unset($SESSION->wantsurl);
 session_write_close();
 
 // do the normal Moodle bootstraping so we have access to all config and the DB
 require_once('../../config.php');
+//session_get_instance();
+session_start();
+$SESSION = &$_SESSION['SESSION'];
+$USER    = &$_SESSION['USER'];
 
 // Check plugin is active
 if (!is_enabled_auth('saml')) {
@@ -130,6 +137,7 @@ if (!is_enabled_auth('saml')) {
 if (empty($wantsurl) && isset($SESSION->wantsurl)) {
     $wantsurl = $SESSION->wantsurl;
 }
+unset($SESSION->wantsurl);
 
 // get the plugin config for saml
 $pluginconfig = get_config('auth/saml');
@@ -183,8 +191,6 @@ if ($user_data) {
     $username = $user_data->username;
 }
 
-//error_log('auth_saml: authenticating username: '.$username);
-//error_log('auth_saml: saml attrs: '.var_export($saml_attributes, true));
 if (isset($pluginconfig->duallogin) && $pluginconfig->duallogin) {
     $USER = auth_saml_authenticate_user_login($username, time());
 }
@@ -201,7 +207,7 @@ if ($USER == false) {
     print_error('pluginauthfailed', 'auth_saml', '', $saml_attributes[$pluginconfig->username][0]);
 }
 
-//error_log('auth_saml: USER logged in: '.var_export($USER, true));
+// error_log('auth_saml: USER logged in: '.var_export($USER, true));
 
 $USER->loggedin = true;
 $USER->site     = $CFG->wwwroot;
@@ -210,7 +216,7 @@ $USER->site     = $CFG->wwwroot;
 $USER = get_complete_user_data('id', $USER->id);
 
 // update logins and report the login attempt
-update_login_count();
+//update_login_count();
 add_to_log(SITEID, 'user', 'login', "view.php?id=$USER->id&course=".SITEID, $USER->id, 0, $USER->id);
 
 // complete the setup of the user
@@ -229,6 +235,7 @@ if (isset($wantsurl) and (strpos($wantsurl, $CFG->wwwroot) === 0)) {
 // flag this as a SAML based login
 $SESSION->SAMLSessionControlled = true;
 redirect($urltogo);
+die();
 
 
 /**
