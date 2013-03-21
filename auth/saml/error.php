@@ -11,7 +11,7 @@
 global $CFG, $USER, $SESSION;
 error_log('auth/saml: auth failed due to some internal error - check the SP and IdP');
 
-$USER = new object();
+$USER = new stdClass();
 $USER->id = 0;
 require_once('../../config.php');
 print_error(get_string("loginfailed", "auth_saml"));
