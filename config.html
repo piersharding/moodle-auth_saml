@@ -1,21 +1,35 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * @author Erlend Strømsvik - Ny Media AS
- * @author Piers Harding - made quite a number of changes
- * @author Tsukasa Hamano - coursecreator and group attribute mapping
- * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package auth/saml
+ * config.html - the display page for all configuration options
  *
  * Authentication Plugin: SAML based SSO Authentication
- *
  * Authentication using SAML2 with SimpleSAMLphp. 
- *
  * Based on plugins made by Sergio Gómez (moodle_ssp) and Martin Dougiamas (Shibboleth).
+ * 
+ * @originalauthor Martin Dougiamas
+ * @author Erlend Strømsvik - Ny Media AS 
+ * @author Piers Harding - made quite a number of changes
+ * @author David Bezemer - Added options to deny auto-povisioning
+ * @version 2.4
+ * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
+ * @package auth_saml
  *
- * 2008-10  Created
- * 2009-07  Added new configuration options
- * 2010-01  Added coursecreator mapping options
-**/
+ **/
 
     global $CFG, $OUTPUT;
 
@@ -24,7 +38,7 @@
         $config->username = 'mail';
     }
     if (!isset ($config->userfield)) {
-        $config->userfield = 'idnumber';
+        $config->userfield = 'username';
     }
     if (!isset ($config->dologout)) {
         $config->dologout = '';
@@ -39,7 +53,7 @@
         $config->notshowusername = '';
     }
     if (!isset ($config->memberattribute)) {
-        $config->memberattribute = 'memberOf';
+        $config->memberattribute = 'members';
     }
     if (!isset ($config->attrcreators)) {
         $config->attrcreators = '';
@@ -70,6 +84,7 @@
     </td>
     <td><?php print_string("auth_saml_username_description", "auth_saml"); ?></td>
 </tr>
+
 <tr valign="top" class="required">
     <td align="right"><?php print_string("auth_saml_userfield", "auth_saml"); ?>:</td>
     <td>
