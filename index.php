@@ -1,21 +1,36 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * index.php - landing page for auth/saml based SAML 2.0 login
  *
- * builds basic CFG and DB connection to Moodle, to then get the saml plugin
- * configuration.
- *
- * Does the SimpleSAMLPHP calls to query SAML 2.0 session status,
- *
- * Builds the rest of Moodle session, and then logs the user in.
- *
+ * Authentication Plugin: SAML based SSO Authentication
+ * Authentication using SAML2 with SimpleSAMLphp. 
+ * Based on plugins made by Sergio Gómez (moodle_ssp) and Martin Dougiamas (Shibboleth).
+ * 
  * @originalauthor Martin Dougiamas
- * @author Erlend Strømsvik - Ny Media AS
+ * @author Erlend Strømsvik - Ny Media AS 
  * @author Piers Harding - made quite a number of changes
- * @version 1.0
+ * @author David Bezemer - Added options to deny auto-povisioning
+ * @version 2.4
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package auth/saml
- */
+ * @package auth_saml
+ *
+ **/
+
 global $CFG, $USER, $SESSION;
 
 define('SAML_INTERNAL', 1);
@@ -149,6 +164,7 @@ if (!isset($pluginconfig->userfield) || empty($pluginconfig->userfield)) {
 
 // we require the plugin to know that we are now doing a saml login in hook puser_login
 $GLOBALS['saml_login'] = TRUE;
+$PAGE->set_context(get_system_context());
 
 // make variables accessible to saml->get_userinfo. Information will be requested from authenticate_user_login -> create_user_record / update_user_record
 $GLOBALS['saml_login_attributes'] = $saml_attributes;
@@ -174,7 +190,6 @@ if ($username != clean_param($username, PARAM_TEXT)) {
     print_error('pluginauthfailedusername', 'auth_saml', '', clean_param($saml_attributes[$pluginconfig->username][0], PARAM_TEXT));
 }
 
-// just passes time as a password. User will never log in directly to moodle with this password anyway or so we hope?
 // check if users are allowed to be created and if the user exists
 $user_data =  get_complete_user_data($pluginconfig->userfield, $username);
 if (isset($pluginconfig->createusers)) {
@@ -192,10 +207,10 @@ if ($user_data) {
 }
 
 if (isset($pluginconfig->duallogin) && $pluginconfig->duallogin) {
-    $USER = auth_saml_authenticate_user_login($username, time());
+    $USER = auth_saml_authenticate_user_login($username, substr(md5(rand()),0,12));
 }
 else {
-    $USER = authenticate_user_login($username, time());
+    $USER = authenticate_user_login($username, substr(md5(rand()),0,12));
 }
 
 // check that the signin worked

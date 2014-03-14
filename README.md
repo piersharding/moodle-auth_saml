@@ -1,5 +1,7 @@
-SAML Authentication for Moodle
--------------------------------------------------------------------------------
+moodle-auth_saml
+================
+SAML Auth Module for Moodle
+
 license: http://www.gnu.org/copyleft/gpl.html GNU Public License
 
 Changes:
@@ -17,9 +19,11 @@ Changes:
                Tsukasa Hamano <hamano@osstech.co.jp>
   2010-04-07 : added use of the wantsurl query string parameter
   2011-02-28 : Modified to support Moodle 2.0
+  2013-03-05 : Modified to support Moodle 2.4 by Piers Harding
+  2014-03-12 : Add option to disable auto provisioning by David Bezemer
 
 Requirements:
-- SimpleSAML (http://rnd.feide.no/simplesamlphp). Tested with version 1.4
+- SimpleSAML (http://rnd.feide.no/simplesamlphp). Tested with version 1.11
 
 Notes: 
 - Uses IdP attribute "mail" as username by default
